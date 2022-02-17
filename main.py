@@ -27,7 +27,6 @@ def use_clues(word, clues, list_of_words):
     working_clues = zip(clues, [i for i in word])
 
     for ind, other_thing in enumerate(working_clues):
-
         match other_thing:
             case 0, let:
                 # if word.count(let) > 1 and ((1, let) in working_clues or (1, let) in working_clues):
@@ -43,7 +42,23 @@ def use_clues(word, clues, list_of_words):
     return list_of_words
 
 
-def use_clues_multiple():
+def use_clues_multiple(word, clues, list_of_words):
+    working_clues = zip(clues, [i for i in word])
+
+    for ind, other_thing in enumerate(working_clues):
+        match other_thing:
+            case 0, let:
+                # if word.count(let) > 1 and ((1, let) in working_clues or (1, let) in working_clues):
+                #     continue
+                list_of_words = [i for i in list_of_words if let not in i]
+
+            case 1, let:
+                list_of_words = [i for i in list_of_words if i[ind] == let]
+
+            case 2, let:
+                list_of_words = [i for i in list_of_words if let in i if i[ind] != let]
+
+    return list_of_words
     pass
 
 

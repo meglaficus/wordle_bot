@@ -41,15 +41,22 @@ def use_clues(word, clues, list_of_words):
     return list_of_words
 
 
+def check_mulitple(working_clues, ind, word):
+
+
 def use_clues_multiple(word, clues, list_of_words):
     working_clues = zip(clues, [i for i in word])
 
     for ind, other_thing in enumerate(working_clues):
         match other_thing:
             case 0, let:
+                if word.count(let) > 1:
+                    if (1, let) in working_clues or (2, let) in working_clues:
+                        continue
                 # if word.count(let) > 1 and ((1, let) in working_clues or (1, let) in working_clues):
                 #     continue
-                list_of_words = [i for i in list_of_words if let not in i]
+                else:
+                    list_of_words = [i for i in list_of_words if let not in i]
 
             case 1, let:
                 list_of_words = [i for i in list_of_words if i[ind] == let]

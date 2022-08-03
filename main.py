@@ -4,6 +4,7 @@ import numpy as np
 from itertools import combinations_with_replacement
 from itertools import permutations
 import pickle
+from rich.console import Console
 
 # word_dict = {i:set() for i in string.ascii_lowercase}
 
@@ -41,9 +42,6 @@ def use_clues(word, clues, list_of_words):
     return list_of_words
 
 
-def check_mulitple(working_clues, ind, word):
-
-
 def use_clues_multiple(word, clues, list_of_words):
     working_clues = zip(clues, [i for i in word])
 
@@ -74,47 +72,50 @@ def find_words(word, words, clues):
 
     list_of_words = use_clues(word, clues, words)
 
+    console = Console()
+
     best = []
-    for my_word in tqdm(list_of_words):
-        y = 0
+    with console.status('[bold blue]Thinking...') as status:
+        for my_word in list_of_words:
+            y = 0
 
-        for thing in combis:
+            for thing in combis:
 
-            list_of_words2 = list_of_words.copy()
-            list_of_words3 = use_clues(my_word, thing, list_of_words2)
+                list_of_words2 = list_of_words.copy()
+                list_of_words3 = use_clues(my_word, thing, list_of_words2)
 
-            if len(list_of_words2):
-                x = len(list_of_words3) / len(list_of_words2)
-            else:
-                x = 0
+                if len(list_of_words2):
+                    x = len(list_of_words3) / len(list_of_words2)
+                else:
+                    x = 0
 
-            if x:
-                y += x * np.log2(1 / x)
+                if x:
+                    y += x * np.log2(1 / x)
 
-            # for thingino in list_of_words:
-            #     # print(outer_ind, row_ind, columns_ind)
-            #     matrix[word_locs[thingino], row_ind, columns_ind] = 1
+                # for thingino in list_of_words:
+                #     # print(outer_ind, row_ind, columns_ind)
+                #     matrix[word_locs[thingino], row_ind, columns_ind] = 1
 
-        best.append((y, my_word))
+            best.append((y, my_word))
 
-    # best = sorted(best, reverse=True)
-    # print(best[:10])
+        # best = sorted(best, reverse=True)
+        # print(best[:10])
 
-    # best = []
-    # for row in tqdm(range(len(matrix[0]))):
-    #     y = 0
-    #     for column in range(len(matrix[0, 0])):
-    #         if column == row:
-    #             continue
-    #         x = np.sum(matrix[:, row, column])/len(matrix[:, row, column])
-    #         if x:
-    #             y += x * np.log2(1/x)
+        # best = []
+        # for row in tqdm(range(len(matrix[0]))):
+        #     y = 0
+        #     for column in range(len(matrix[0, 0])):
+        #         if column == row:
+        #             continue
+        #         x = np.sum(matrix[:, row, column])/len(matrix[:, row, column])
+        #         if x:
+        #             y += x * np.log2(1/x)
 
-    #     best.append((y, list_of_words[row]))
+        #     best.append((y, list_of_words[row]))
 
-    best = sorted(best, reverse=True)[0][1]
+        best = sorted(best, reverse=True)[0][1]
 
-    return list_of_words, best
+        return list_of_words, best
     # print(best[:10])
 
 

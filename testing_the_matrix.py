@@ -14,13 +14,13 @@ print('imported')
 best = []
 for row in tqdm(range(len(matrix[0]))):
     y = 0
-    for column in range(len(matrix[0,0])):
+    for column in range(len(matrix[0, 0])):
         if column == row:
             continue
         x = np.sum(matrix[:, row, column])/len(matrix[:, row, column])
         if x:
             y += x * log2(1/x)
-            
+
     best.append((y, allowed[row]))
 
 best = sorted(best, reverse=True)

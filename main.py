@@ -1,123 +1,88 @@
-from unicodedata import name
-from tqdm import tqdm
-import numpy as np
-from itertools import combinations_with_replacement
-from itertools import permutations
-import pickle
+from termcolor import colored
+from backend import find_words
+from pyfiglet import Figlet
+import os
 from rich.console import Console
 
-# word_dict = {i:set() for i in string.ascii_lowercase}
 
-# with open('allowed.txt') as words:
-#     allowed = [i.strip() for i in words.readlines()]
-
-with open('test.txt') as words:
-    answers = [i.strip() for i in words.readlines()]
-
-# Possible combinations of hints
-with open('combis.pkl', 'rb') as file:
-    combis = pickle.load(file)
-
-matrix = np.zeros((len(answers), len(answers), 3 ** 5), dtype='int')
-
-word_locs = {value: i for i, value in enumerate(answers)}
-
-
-def use_clues(word, clues, list_of_words):
-    working_clues = zip(clues, [i for i in word])
-
-    for ind, other_thing in enumerate(working_clues):
-        match other_thing:
-            case 0, let:
-                # if word.count(let) > 1 and ((1, let) in working_clues or (1, let) in working_clues):
-                #     continue
-                list_of_words = [i for i in list_of_words if let not in i]
-
-            case 1, let:
-                list_of_words = [i for i in list_of_words if i[ind] == let]
-
-            case 2, let:
-                list_of_words = [
-                    i for i in list_of_words if let in i if i[ind] != let]
-    return list_of_words
-
-
-def use_clues_multiple(word, clues, list_of_words):
-    working_clues = zip(clues, [i for i in word])
-
-    for ind, other_thing in enumerate(working_clues):
-        match other_thing:
-            case 0, let:
-                if word.count(let) > 1:
-                    if (1, let) in working_clues or (2, let) in working_clues:
-                        continue
-                # if word.count(let) > 1 and ((1, let) in working_clues or (1, let) in working_clues):
-                #     continue
-                else:
-                    list_of_words = [i for i in list_of_words if let not in i]
-
-            case 1, let:
-                list_of_words = [i for i in list_of_words if i[ind] == let]
-
-            case 2, let:
-                list_of_words = [
-                    i for i in list_of_words if let in i if i[ind] != let]
-
-    return list_of_words
-
-
-def find_words(word, words, clues):
-
-    clues = tuple([int(i) for i in clues])
-
-    list_of_words = use_clues(word, clues, words)
-
+def main():
     console = Console()
 
-    best = []
-    with console.status('[bold blue]Thinking...') as status:
-        for my_word in list_of_words:
-            y = 0
+    with open('allowed.txt', 'r') as f:
+        words = [i.strip() for i in f.readlines()]
 
-            for thing in combis:
+    colors = {'0': 'white', '1': 'green', '2': 'yellow'}
 
-                list_of_words2 = list_of_words.copy()
-                list_of_words3 = use_clues(my_word, thing, list_of_words2)
+    title = """
+        _       ______  ____  ____  __    ______   ____  ____  ______
+        | |     / / __ \/ __ \/ __ \/ /   / ____/  / __ )/ __ \/_  __/
+    | | /| / / / / / /_/ / / / / /   / __/    / __  / / / / / /
+    | |/ |/ / /_/ / _, _/ /_/ / /___/ /___   / /_/ / /_/ / / /
+    |__/|__/\____/_/ |_/_____/_____/_____/  /_____/\____/ /_/
+    """
 
-                if len(list_of_words2):
-                    x = len(list_of_words3) / len(list_of_words2)
-                else:
-                    x = 0
+    instructions = """
+    +--------------------------------------------+
+    | Please enter hints like this:              |
+    | 0: [bold white]white[/bold white]                                   |
+    | 1: [bold green]green[/bold green]                                   |
+    | 2: [bold yellow]yellow[/bold yellow]                                  |
+    |                                            |
+    | When you solve the puzzle, type [white]"[bold white]solved[/bold white]"   |
+    +--------------------------------------------+"""
+    console.print(title, justify='center', style='bold magenta')
+    console.print(instructions, justify='center')
+    print()
+    print()
 
-                if x:
-                    y += x * np.log2(1 / x)
+    def print_puzzle(words, hints):
+        console.print('-----------------------', justify='center')
+        for ind, word in enumerate(words):
+            my_string = ''
+            for ind2, letter in enumerate(word):
+                my_string += f'[bold {colors[hints[ind][ind2]]}]{letter}[/bold {colors[hints[ind][ind2]]}] '
+            console.print(my_string, justify='center')
+        console.print('-----------------------', justify='center')
 
-                # for thingino in list_of_words:
-                #     # print(outer_ind, row_ind, columns_ind)
-                #     matrix[word_locs[thingino], row_ind, columns_ind] = 1
+    print(f'{len(words)} words left')
+    console.print('Try word: [bold magenta]PIOUS[/bold magenta]')
 
-            best.append((y, my_word))
+    words_list = ['PIOUS']
+    hints_list = []
+    while True:
+        c_code = input('Enter hints or type \"solved\": ')
+        print("\033[A                                              \033[A")
+        print("\033[A                                              \033[A")
+        print("\033[A                                              \033[A")
 
-        # best = sorted(best, reverse=True)
-        # print(best[:10])
+        if c_code == 'solved':
+            hints_list.append('11111')
+            print()
+            print_puzzle(words_list, hints_list)
+            print()
+            console.print(
+                ':party_popper:', '[bold magenta]CONGRATULATIONS![/bold magenta]', ':party_popper:', justify='center')
+            print()
+            break
 
-        # best = []
-        # for row in tqdm(range(len(matrix[0]))):
-        #     y = 0
-        #     for column in range(len(matrix[0, 0])):
-        #         if column == row:
-        #             continue
-        #         x = np.sum(matrix[:, row, column])/len(matrix[:, row, column])
-        #         if x:
-        #             y += x * np.log2(1/x)
+        try:
+            if any(int(i) > 2 for i in c_code) or len(c_code) != 5:
+                print(colored('Wrong input, try again', 'red'))
+                continue
+        except:
+            print(colored('Wrong input, try again', 'red'))
+            continue
 
-        #     best.append((y, list_of_words[row]))
+        print()
+        hints_list.append(c_code)
 
-        best = sorted(best, reverse=True)[0][1]
+        print_puzzle(words_list, hints_list)
+        print('\n\n')
 
-        return list_of_words, best
-    # print(best[:10])
+        words, new_word = find_words(words_list[-1].lower(), words, c_code)
+        words_list.append(new_word.upper())
+        console.print(f'Try: [bold magenta]{new_word.upper()}[/bold magenta]')
 
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()

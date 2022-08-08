@@ -14,22 +14,22 @@ def main():
     colors = {'0': 'white', '1': 'green', '2': 'yellow'}
 
     title = """
-        _       ______  ____  ____  __    ______   ____  ____  ______
+         _       ______  ____  ____  __    ______   ____  ____  ______
         | |     / / __ \/ __ \/ __ \/ /   / ____/  / __ )/ __ \/_  __/
-    | | /| / / / / / /_/ / / / / /   / __/    / __  / / / / / /
+     | | /| / / / / / /_/ / / / / /   / __/    / __  / / / / / /
     | |/ |/ / /_/ / _, _/ /_/ / /___/ /___   / /_/ / /_/ / / /
     |__/|__/\____/_/ |_/_____/_____/_____/  /_____/\____/ /_/
     """
 
     instructions = """
-    +--------------------------------------------+
-    | Please enter hints like this:              |
-    | 0: [bold white]white[/bold white]                                   |
-    | 1: [bold green]green[/bold green]                                   |
-    | 2: [bold yellow]yellow[/bold yellow]                                  |
-    |                                            |
-    | When you solve the puzzle, type [white]"[bold white]solved[/bold white]"   |
-    +--------------------------------------------+"""
+    +-------------------------------------------+
+    | Please enter hints like this:             |
+    | 0: [bold white]white[/bold white]                                  |
+    | 1: [bold green]green[/bold green]                                  |
+    | 2: [bold yellow]yellow[/bold yellow]                                 |
+    |                                           |
+    | When you solve the puzzle, type [white]"[bold white]solved[/bold white]"  |
+    +-------------------------------------------+"""
     console.print(title, justify='center', style='bold magenta')
     console.print(instructions, justify='center')
     print()
@@ -41,6 +41,7 @@ def main():
             my_string = ''
             for ind2, letter in enumerate(word):
                 my_string += f'[bold {colors[hints[ind][ind2]]}]{letter}[/bold {colors[hints[ind][ind2]]}] '
+            my_string = my_string[:-1]
             console.print(my_string, justify='center')
         console.print('-----------------------', justify='center')
 

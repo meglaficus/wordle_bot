@@ -1,14 +1,7 @@
 from tqdm import tqdm
 import numpy as np
-import pickle
+import pickle as pkl
 from rich.console import Console
-
-console = Console()
-
-
-# Possible combinations of hints
-with open('combis.pkl', 'rb') as file:
-    combis = pickle.load(file)
 
 
 def use_clues(word, clues, list_of_words):
@@ -62,6 +55,11 @@ def use_clues(word, clues, list_of_words):
 
 
 def find_words(word, words, clues):
+    console = Console()
+
+    # Possible combinations of hints
+    with open('data/combis.pkl', 'rb') as file:
+        combis = pkl.load(file)
 
     clues = tuple([int(i) for i in clues])
 
@@ -90,28 +88,3 @@ def find_words(word, words, clues):
                 best_word = word
 
         return list_of_words, best_word
-
-
-def test_it():
-    with open('answers.txt', 'r') as f:
-        list_of_words = [i.strip() for i in f.readlines()]
-
-    result = []
-    for my_word in tqdm(list_of_words):
-        y = 0
-
-        for thing in combis:
-            list_of_words2 = use_clues(
-                my_word, thing, list_of_words)
-
-            x = len(list_of_words2) / len(list_of_words)
-            if x:
-                y += x * np.log2(1 / x)
-
-        result.append((y, my_word))
-
-    print(sorted(result, reverse=True)[:10])
-
-
-if __name__ == "__main__":
-    test_it()

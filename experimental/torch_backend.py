@@ -46,13 +46,9 @@ for ind in tqdm(range(len(words))):
     combis_e = combis[:, None, :]
     orig_word_counts = orig_word_counts[:, None, :]
 
-    # Also need to add checks for scenarios that do not come up in the actual game!!!
-    # ie. there can not be a combination of hints where there is grey letter before a green/yellow letter if the letter is the same.
-
     hard_counts = t.where(combis_e == 0, orig_word_counts, 6)
     soft_counts = t.where(combis_e == 2, orig_word_counts, 6)
 
-    # start of beta to fix last problem
     hard_filtered = t.where((hard_counts < 6) & (
         hard_counts > 0), orig_word_counts0, 0)
 
@@ -64,11 +60,9 @@ for ind in tqdm(range(len(words))):
     slice_kernel = slice_kernel[None, :]
 
     hard_filtered = t.where(slice_kernel == 0, hard_filtered, 0)
-    # print(hard_filtered)
 
     dup_check_result = t.where(hard_filtered.sum(1).sum(1) == 0, 1, 0)
 
-    # end of beta to fix last problem
     position_check_pos = t.where(combis_e == 1, compare_counts, 1)
     position_check_neg = t.where(
         (combis_e == 0) | (combis_e == 2), compare_counts, 0)
@@ -84,9 +78,6 @@ for ind in tqdm(range(len(words))):
 
     hard_results = t.where(t.all(hard_check == 1, dim=2), 1, 0)
     soft_results = t.where(t.all(soft_check == 1, dim=2), 1, 0)
-    # print(position_results.size())
-    # print(dup_check_result.size())
-    # print(dup_check_result)
 
     combined_results = t.where((position_results == 1) & (
         hard_results == 1) & (soft_results == 1) & (dup_check_result[:, None] == 1), 1, 0)

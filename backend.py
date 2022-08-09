@@ -94,7 +94,7 @@ if __name__ == '__main__':
     with open('data/combis.pkl', 'rb') as file:
         combis = pkl.load(file)
 
-    with open('data\mini_single_test.txt', 'r') as f:
+    with open('data/mini_single_test.txt', 'r') as f:
         list_of_words = [i.strip() for i in f.readlines()]
 
         result = []

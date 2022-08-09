@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 cuda0 = t.device('cuda:0')
 
-with open('data\mini_single_test.txt', 'r') as f:
+with open('data/mini_single_test.txt', 'r') as f:
     actual_words = [i.strip() for i in f.readlines()]
 
 with open('data/combis.pkl', 'rb') as file:
@@ -22,45 +22,44 @@ words0 = t.tensor(words0, dtype=t.int8, device=cuda0)
 vert_words = words.transpose(1, 2)
 entropies = t.zeros(len(words), device=cuda0)
 
-combis_e0 = combis[:, None, :].transpose(1, 2)
+combis_e0 = combis[:, None, :]
 
 for ind in tqdm(range(len(words))):
-    positions = t.where((vert_words - words[ind, 0, :]) == 0, 1, 0)
+    positions = t.where((vert_words - words0[ind]) == 0, 1, 0)
+
     position_sums = positions.sum(dim=1)
     position_sums = position_sums[None, :]
 
     orig_word_counts = t.where(
-        (vert_words[ind] - words[ind, 0]) == 0, 1, 0)
+        (vert_words[ind] - words0[ind]) == 0, 1, 0)
 
     orig_word_counts = orig_word_counts[None, :]
-
     orig_word_counts = t.where(combis_e0 != 0, orig_word_counts, 0).sum(dim=1)
 
     compare_counts = t.where((words0 - words0[ind]) == 0, 1, 0)
+    # print(compare_counts)
     compare_counts = compare_counts[None, :]
 
     combis_e = combis[:, None, :]
     orig_word_counts = orig_word_counts[:, None, :]
 
-    # these have to be tweaked in order to work with multiple letters - this should now work
-
-    # also need to add checks for scenarios that do not come up in the actual game!!!
+    # Also need to add checks for scenarios that do not come up in the actual game!!!
     # ie. there can not be a combination of hints where there is grey letter before a green/yellow letter if the letter is the same.
 
     hard_counts = t.where(combis_e == 0, orig_word_counts, 6)
     soft_counts = t.where(combis_e == 2, orig_word_counts, 6)
 
-    position_check_pos = t.where(combis_e == 1, position_sums, 1)
+    position_check_pos = t.where(combis_e == 1, compare_counts, 1)
     position_check_neg = t.where(
-        (combis_e == 0) | (combis_e == 2), position_sums, 0)
+        (combis_e == 0) | (combis_e == 2), compare_counts, 0)
     position_check_neg = t.where(position_check_neg == 0, 1, 0)
 
-    position_results = t.where((t.all(position_check_pos == 1, dim=2)) & (
-        t.all(position_check_neg == 1, dim=2)), 1, 0)
+    position_results = t.where((t.sum(position_check_pos, dim=2) == 5) & (
+        t.sum(position_check_neg, dim=2) == 5), 1, 0)
 
-    hard_check = t.where((hard_counts == compare_counts)
+    hard_check = t.where((hard_counts == position_sums)
                          | (hard_counts == 6), 1, 0)
-    soft_check = t.where((soft_counts <= compare_counts)
+    soft_check = t.where((soft_counts <= position_sums)
                          | (soft_counts == 6), 1, 0)
 
     hard_results = t.where(t.all(hard_check == 1, dim=2), 1, 0)
@@ -72,7 +71,7 @@ for ind in tqdm(range(len(words))):
     results_sums = combined_results.sum(dim=1)
 
     result_entropy = t.where(
-        results_sums != 0, results_sums/len(words) * t.log2(1/(results_sums/len(words))), 0)
+        results_sums != 0, (results_sums/len(words)) * t.log2(1/(results_sums/len(words))), 0)
 
     entropies[ind] = result_entropy.sum()
 

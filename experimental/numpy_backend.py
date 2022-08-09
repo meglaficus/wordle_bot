@@ -132,11 +132,11 @@ def use_clues3(word, clues, list_of_words, matrix, column_ind):
 
 
 def new_test_it():
-    with open('data/mini_single_test.txt', 'r') as f:
+    with open('data/test2.txt', 'r') as f:
         list_of_words = [i.strip() for i in f.readlines()]
 
     result = []
-    for my_word in tqdm(list_of_words):
+    for my_word in tqdm(list_of_words[:1]):
         matrix = np.ones((len(list_of_words), len(combis)))
         for combi_ind, thing in enumerate(combis):
             use_clues2(my_word, thing, list_of_words, matrix, combi_ind)
@@ -146,9 +146,8 @@ def new_test_it():
 
         # with open('data/matrix.csv', 'w') as f:
         #     matrix.tofile(f, sep=',')
-
         result.append((y, my_word))
-
+        print(matrix)
     print(sorted(result, reverse=True)[:5])
 
 

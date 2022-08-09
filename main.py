@@ -8,7 +8,7 @@ from rich.console import Console
 def main():
     console = Console()
 
-    with open('allowed.txt', 'r') as f:
+    with open('data/allowed.txt', 'r') as f:
         words = [i.strip() for i in f.readlines()]
 
     colors = {'0': 'white', '1': 'green', '2': 'yellow'}

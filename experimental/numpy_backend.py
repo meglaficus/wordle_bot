@@ -1,3 +1,12 @@
+import numpy as np
+from tqdm import tqdm
+import pickle as pkl
+import pandas as pd
+
+
+with open('data/combis.pkl', 'rb') as file:
+    combis = pkl.load(file)
+
 
 def use_clues2(word, clues, list_of_words, matrix, column_ind):
     working_clues = [i for i in zip(clues, [i for i in word])]
@@ -123,18 +132,24 @@ def use_clues3(word, clues, list_of_words, matrix, column_ind):
 
 
 def new_test_it():
-    with open('test1.txt', 'r') as f:
+    with open('data/mini_single_test.txt', 'r') as f:
         list_of_words = [i.strip() for i in f.readlines()]
 
     result = []
     for my_word in tqdm(list_of_words):
         matrix = np.ones((len(list_of_words), len(combis)))
         for combi_ind, thing in enumerate(combis):
-            use_clues3(my_word, thing, list_of_words, matrix, combi_ind)
+            use_clues2(my_word, thing, list_of_words, matrix, combi_ind)
             sums = np.sum(matrix, axis=0)
             sums = sums / len(list_of_words)
             y = np.sum([(i * np.log2(1 / i)) if i != 0 else 0 for i in sums])
 
+        # with open('data/matrix.csv', 'w') as f:
+        #     matrix.tofile(f, sep=',')
+
         result.append((y, my_word))
 
-    print(sorted(result, reverse=True)[:10])
+    print(sorted(result, reverse=True)[:5])
+
+
+new_test_it()

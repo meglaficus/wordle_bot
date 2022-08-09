@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 cuda0 = t.device('cuda:0')
 
-with open('data/mini_single_test.txt', 'r') as f:
+with open('data/answers.txt', 'r') as f:
     actual_words = [i.strip() for i in f.readlines()]
 
 with open('data/combis.pkl', 'rb') as file:
@@ -24,17 +24,20 @@ entropies = t.zeros(len(words), device=cuda0)
 
 combis_e0 = combis[:, None, :]
 
+
 for ind in tqdm(range(len(words))):
+
     positions = t.where((vert_words - words0[ind]) == 0, 1, 0)
 
     position_sums = positions.sum(dim=1)
     position_sums = position_sums[None, :]
 
-    orig_word_counts = t.where(
+    orig_word_counts0 = t.where(
         (vert_words[ind] - words0[ind]) == 0, 1, 0)
 
-    orig_word_counts = orig_word_counts[None, :]
-    orig_word_counts = t.where(combis_e0 != 0, orig_word_counts, 0).sum(dim=1)
+    orig_word_counts0 = orig_word_counts0[None, :]
+    orig_word_counts = t.where(
+        combis_e0 != 0, orig_word_counts0, 0).sum(dim=1)
 
     compare_counts = t.where((words0 - words0[ind]) == 0, 1, 0)
     # print(compare_counts)
@@ -49,6 +52,23 @@ for ind in tqdm(range(len(words))):
     hard_counts = t.where(combis_e == 0, orig_word_counts, 6)
     soft_counts = t.where(combis_e == 2, orig_word_counts, 6)
 
+    # start of beta to fix last problem
+    hard_filtered = t.where((hard_counts < 6) & (
+        hard_counts > 0), orig_word_counts0, 0)
+
+    slice_kernel = t.tensor([[1, 1, 1, 1, 1],
+                            [0, 1, 1, 1, 1],
+                            [0, 0, 1, 1, 1],
+                            [0, 0, 0, 1, 1],
+                            [0, 0, 0, 0, 1]], dtype=t.int8, device=cuda0)
+    slice_kernel = slice_kernel[None, :]
+
+    hard_filtered = t.where(slice_kernel == 0, hard_filtered, 0)
+    # print(hard_filtered)
+
+    dup_check_result = t.where(hard_filtered.sum(1).sum(1) == 0, 1, 0)
+
+    # end of beta to fix last problem
     position_check_pos = t.where(combis_e == 1, compare_counts, 1)
     position_check_neg = t.where(
         (combis_e == 0) | (combis_e == 2), compare_counts, 0)
@@ -64,9 +84,12 @@ for ind in tqdm(range(len(words))):
 
     hard_results = t.where(t.all(hard_check == 1, dim=2), 1, 0)
     soft_results = t.where(t.all(soft_check == 1, dim=2), 1, 0)
+    # print(position_results.size())
+    # print(dup_check_result.size())
+    # print(dup_check_result)
 
     combined_results = t.where((position_results == 1) & (
-        hard_results == 1) & (soft_results == 1), 1, 0)
+        hard_results == 1) & (soft_results == 1) & (dup_check_result[:, None] == 1), 1, 0)
 
     results_sums = combined_results.sum(dim=1)
 
@@ -75,7 +98,8 @@ for ind in tqdm(range(len(words))):
 
     entropies[ind] = result_entropy.sum()
 
-pairs = sorted(
-    [i for i in zip(np.array(entropies.cpu()), actual_words)], reverse=True)
+    pairs = sorted(
+        [i for i in zip(np.array(entropies.cpu()), actual_words)], reverse=True)
+
 
 print(pairs[:5])

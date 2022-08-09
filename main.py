@@ -1,7 +1,5 @@
 from termcolor import colored
 from backend import find_words
-from pyfiglet import Figlet
-import os
 from rich.console import Console
 
 

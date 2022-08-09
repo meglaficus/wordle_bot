@@ -88,3 +88,24 @@ def find_words(word, words, clues):
                 best_word = word
 
         return list_of_words, best_word
+
+
+if __name__ == '__main__':
+    with open('data/combis.pkl', 'rb') as file:
+        combis = pkl.load(file)
+
+    with open('data\mini_single_test.txt', 'r') as f:
+        list_of_words = [i.strip() for i in f.readlines()]
+
+        result = []
+        for my_word in tqdm(list_of_words):
+            y = 0
+            for thing in combis:
+                list_of_words2 = use_clues(
+                    my_word, thing, list_of_words)
+                x = len(list_of_words2) / len(list_of_words)
+                if x:
+                    y += x * np.log2(1 / x)
+            result.append((y, my_word))
+
+        print(sorted(result, reverse=True)[:5])

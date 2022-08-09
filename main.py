@@ -61,7 +61,7 @@ def main():
             print_puzzle(words_list, hints_list)
             print()
             console.print(
-                ':party_popper:', '    [bold magenta]CONGRATULATIONS![/bold magenta]', ':party_popper:', justify='center')
+                '    ', ':party_popper:', '[bold magenta]CONGRATULATIONS![/bold magenta]', ':party_popper:', justify='center')
             print()
             break
 

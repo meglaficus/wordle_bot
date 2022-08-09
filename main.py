@@ -1,6 +1,7 @@
 from termcolor import colored
-from backend import find_words
+from deprecated.backend import find_words
 from rich.console import Console
+from torch_backend import filter_words
 
 
 def main():
@@ -20,28 +21,28 @@ def main():
     """
 
     instructions = """
-    +-------------------------------------------+
-    | Please enter hints like this:             |
-    | 0: [bold white]white[/bold white]                                  |
-    | 1: [bold green]green[/bold green]                                  |
-    | 2: [bold yellow]yellow[/bold yellow]                                 |
-    |                                           |
-    | When you solve the puzzle, type [white]"[bold white]solved[/bold white]"  |
-    +-------------------------------------------+"""
+    +-----------------------------------------+
+    | Please enter hints like this:           |
+    | 0: [bold white]white[/bold white]                                |
+    | 1: [bold green]green[/bold green]                                |
+    | 2: [bold yellow]yellow[/bold yellow]                               |
+    |                                         |
+    | When you solve the puzzle, type [white]"[bold white]solved[/bold white]"|
+    +-----------------------------------------+"""
     console.print(title, justify='center', style='bold magenta')
     console.print(instructions, justify='center')
     print()
     print()
 
     def print_puzzle(words, hints):
-        console.print('-----------------------', justify='center')
+        console.print('    -----------------------', justify='center')
         for ind, word in enumerate(words):
             my_string = ''
             for ind2, letter in enumerate(word):
                 my_string += f'[bold {colors[hints[ind][ind2]]}]{letter}[/bold {colors[hints[ind][ind2]]}] '
-            my_string = my_string[:-1]
+            my_string = '    ' + my_string[:-1]
             console.print(my_string, justify='center')
-        console.print('-----------------------', justify='center')
+        console.print('    -----------------------', justify='center')
 
     print(f'{len(words)} words left')
     console.print('Try word: [bold magenta]PIOUS[/bold magenta]')
@@ -60,7 +61,7 @@ def main():
             print_puzzle(words_list, hints_list)
             print()
             console.print(
-                ':party_popper:', '[bold magenta]CONGRATULATIONS![/bold magenta]', ':party_popper:', justify='center')
+                ':party_popper:', '    [bold magenta]CONGRATULATIONS![/bold magenta]', ':party_popper:', justify='center')
             print()
             break
 
@@ -78,7 +79,7 @@ def main():
         print_puzzle(words_list, hints_list)
         print('\n\n')
 
-        words, new_word = find_words(words_list[-1].lower(), words, c_code)
+        words, new_word = filter_words(words_list[-1].lower(), words, c_code)
         words_list.append(new_word.upper())
         console.print(f'Try: [bold magenta]{new_word.upper()}[/bold magenta]')
 

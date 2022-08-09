@@ -80,11 +80,12 @@ def find_words(word, words, clues):
 
             result.append((y, my_word))
 
+        print(sorted(result))
         best_score = 0
         best_word = result[0][1]
         for score, word in result:
             if score > best_score:
-                score = best_score
+                best_score = score
                 best_word = word
 
         return list_of_words, best_word

@@ -1,5 +1,4 @@
 from termcolor import colored
-from deprecated.backend import find_words
 from rich.console import Console
 from torch_backend import filter_words
 

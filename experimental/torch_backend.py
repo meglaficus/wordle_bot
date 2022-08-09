@@ -20,12 +20,11 @@ words0 = t.tensor(words0, dtype=t.int8, device=cuda0)
 
 
 vert_words = words.transpose(1, 2)
-
 entropies = t.zeros(len(words), device=cuda0)
 
 combis_e0 = combis[:, None, :].transpose(1, 2)
 
-for ind in tqdm(range(1)):
+for ind in tqdm(range(len(words))):
     positions = t.where((vert_words - words[ind, 0, :]) == 0, 1, 0)
     position_sums = positions.sum(dim=1)
     position_sums = position_sums[None, :]

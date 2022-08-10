@@ -3,21 +3,27 @@ import numpy as np
 import pickle as pkl
 from rich.console import Console
 
-
-cuda0 = t.device('cuda:0')
+gpu_ids = []
+if t.cuda.is_available():
+    gpu_ids += [gpu_id for gpu_id in range(t.cuda.device_count())]
+    device = t.device(f'cuda:{gpu_ids[0]}')
+    t.cuda.set_device(device)
+else:
+    print('WARNING: No CUDA devices found! Running on CPU.')
+    device = t.device('cpu')
 
 
 def get_base_matrices(word_list, clues):
 
-    combis = t.tensor(clues, device=cuda0)
+    combis = t.tensor(clues, device=device)
 
     words = [[ord(j) for j in i.strip()] for i in word_list]
-    words = t.tensor(words, dtype=t.int8, device=cuda0)
+    words = t.tensor(words, dtype=t.int8, device=device)
 
     vert_words = words[:, None, :].transpose(1, 2)
     combis_e0 = combis[:, None, :]
 
-    entropies = t.zeros(len(word_list), device=cuda0)
+    entropies = t.zeros(len(word_list), device=device)
 
     return combis, words, vert_words, combis_e0, entropies
 
@@ -51,7 +57,7 @@ def get_combined_results(words0, vert_words, combis, ind, combis_e0):
                             [0, 1, 1, 1, 1],
                             [0, 0, 1, 1, 1],
                             [0, 0, 0, 1, 1],
-                            [0, 0, 0, 0, 1]], dtype=t.int8, device=cuda0)
+                            [0, 0, 0, 0, 1]], dtype=t.int8, device=device)
 
     slice_kernel = slice_kernel[None, :]
 
@@ -103,32 +109,32 @@ def get_all_entropy(word_list):
 
 def filter_words(word, word_list, clue):
     console = Console()
-
-    clue = [[int(i) for i in clue]]
-
-    combis, words, vert_words, combis_e0, entropies = get_base_matrices(
-        word_list, clue)
-    ind = word_list.index(word)
-
-    combined_results = get_combined_results(
-        words, vert_words, combis, ind, combis_e0)
-    combined_results = np.array(combined_results[0].cpu())
-
-    legal_words = [i for j, i in enumerate(
-        word_list) if combined_results[j] == 1]
-
     with console.status('[bold blue]Thinking...') as status:
+
+        clue = [[int(i) for i in clue]]
+
+        combis, words, vert_words, combis_e0, entropies = get_base_matrices(
+            word_list, clue)
+        ind = word_list.index(word)
+
+        combined_results = get_combined_results(
+            words, vert_words, combis, ind, combis_e0)
+        combined_results = np.array(combined_results[0].cpu())
+
+        legal_words = [i for j, i in enumerate(
+            word_list) if combined_results[j] == 1]
+
         entropies = get_all_entropy(legal_words)
 
-    pairs = sorted(
-        [i for i in zip(np.array(entropies.cpu()), legal_words)], reverse=True)
+        pairs = sorted(
+            [i for i in zip(np.array(entropies.cpu()), legal_words)], reverse=True)
 
-    best_score = 0
-    best_word = pairs[0][1]
-    for score, word in pairs:
-        if score > best_score:
-            best_score = score
-            best_word = word
+        best_score = 0
+        best_word = pairs[0][1]
+        for score, word in pairs:
+            if score > best_score:
+                best_score = score
+                best_word = word
 
     return legal_words, best_word
 

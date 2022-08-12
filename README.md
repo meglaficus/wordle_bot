@@ -15,7 +15,7 @@ What makes it special is the fact that it is GPU accelerated!
 Yes, most of the heavy lifting is done on the GPU via pytorch.
 
 ## Try it out
-You can either clone the repo or use the [link](https://colab.research.google.com/github/meglaficus/wordle_bot/blob/main/try_it_out.ipynb) to try it out on Google Colab.
+You can either clone the repo or use the [link](https://colab.research.google.com/github/meglaficus/wordle_bot/blob/main/accessories/try_it_out.ipynb) to try it out on Google Colab.
 
 Make sure to select the GPU accelerated version of Google Colab.
 

@@ -15,9 +15,10 @@ What makes it special is the fact that it is GPU accelerated!
 Yes, most of the heavy lifting is done on the GPU via pytorch.
 
 ## Try it out
-You can either clone the repo or use the [link](https://colab.research.google.com/drive/1avsvWkYhfHdYSe1Vyhjh6qy9scwYBESY?usp=sharing) to try it out on Google Colab.
+You can either clone the repo or use the [link](https://colab.research.google.com/github/meglaficus/wordle_bot/blob/main/try_it_out.ipynb) to try it out on Google Colab.
 
 Make sure to select the GPU accelerated version of Google Colab.
 
 ## Inspiration
 The maths behind finding the best guess is well explained in this [3Blue1Brown video](https://www.youtube.com/watch?v=v68zYyaEmEA&).
+

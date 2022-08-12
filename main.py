@@ -1,13 +1,15 @@
 from termcolor import colored
 from rich.console import Console
 from torch_backend import filter_words
+import pickle as pkl
+import os
 
 
 def main():
     console = Console()
-
-    with open('data/allowed.txt', 'r') as f:
-        words = [i.strip() for i in f.readlines()]
+    
+    with open('data/allowed_words.pkl', 'rb') as file:
+        words = pkl.load(file)
 
     colors = {'0': 'white', '1': 'green', '2': 'yellow'}
 
@@ -26,7 +28,7 @@ def main():
     | 1: [bold green]green[/bold green]                                |
     | 2: [bold yellow]yellow[/bold yellow]                               |
     |                                         |
-    | When you solve the puzzle, type [white]"[bold white]solved[/bold white]"|
+    | When you solve the puzzle, hit [bold white]ENTER[/bold white]    |
     +-----------------------------------------+"""
     console.print(title, justify='center', style='bold magenta')
     console.print(instructions, justify='center')
@@ -44,17 +46,17 @@ def main():
         console.print('    -----------------------', justify='center')
 
     print(f'{len(words)} words left')
-    console.print('Try word: [bold magenta]PIOUS[/bold magenta]')
+    console.print('Try [bold magenta]RATES[/bold magenta]')
 
-    words_list = ['PIOUS']
+    words_list = ['RATES']
     hints_list = []
     while True:
-        c_code = input('Enter hints or type \"solved\": ')
+        c_code = console.input('Enter hints or hit [bold white]ENTER[/bold white] if solved:')
         print("\033[A                                              \033[A")
         print("\033[A                                              \033[A")
         print("\033[A                                              \033[A")
 
-        if c_code == 'solved':
+        if c_code == '':
             hints_list.append('11111')
             print()
             print_puzzle(words_list, hints_list)
@@ -80,7 +82,8 @@ def main():
 
         words, new_word = filter_words(words_list[-1].lower(), words, c_code)
         words_list.append(new_word.upper())
-        console.print(f'Try: [bold magenta]{new_word.upper()}[/bold magenta]')
+        print(f'{len(words)} words left')
+        console.print(f'Try [bold magenta]{new_word.upper()}[/bold magenta]')
 
 
 if __name__ == '__main__':
